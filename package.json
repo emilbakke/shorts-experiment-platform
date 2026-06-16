@@ -1,0 +1,29 @@
+{
+  "name": "exp-video-platform",
+  "version": "1.0.0",
+  "description": "Reusable randomized Shorts experiment platform",
+  "private": true,
+  "scripts": {
+    "build": "npm run ensure:backend && npm --prefix frontend run build",
+    "build:ucloud-local": "bash scripts/local_ucloud_mode.sh build",
+    "setup:backend": "python3 -m pip install --upgrade --force-reinstall --target $(python3 scripts/python_deps_path.py) -r backend/requirements-test.txt",
+    "test": "npm run test:backend && npm run test:e2e",
+    "test:backend": "npm run ensure:backend && PYTHONPATH=$(python3 scripts/python_deps_path.py):. python3 -m pytest backend/tests",
+    "test:backend:ucloud-local": "bash scripts/local_ucloud_mode.sh test:backend",
+    "test:e2e": "npm run ensure:backend && PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test",
+    "test:headed": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --headed",
+    "test:install": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright install chromium",
+    "persona:sweep": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers node scripts/persona_sweep.mjs",
+    "ensure:backend": "python3 scripts/ensure_python_deps.py",
+    "ucloud-local:prepare": "bash scripts/local_ucloud_mode.sh prepare",
+    "ucloud-local:verify": "bash scripts/local_ucloud_mode.sh verify",
+    "ucloud:preflight": "bash scripts/ucloud_preflight.sh",
+    "dev:mobile": "npm run ensure:backend && npm --prefix frontend run dev -- --hostname 0.0.0.0 --port 3000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
+  }
+}

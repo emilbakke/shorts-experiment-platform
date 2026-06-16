@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: viewtube
+      POSTGRES_PASSWORD: viewtube
+      POSTGRES_DB: viewtube_behavior
+    volumes:
+      - behavior-data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.backend
+    volumes:
+      - .:/workspace
+    ports:
+      - "8000:8000"
+    environment:
+      CONTENT_DATABASE_URL: sqlite:////workspace/data/viewtube_content.sqlite
+      BEHAVIOR_DATABASE_URL: postgresql+psycopg://viewtube:viewtube@db:5432/viewtube_behavior
+      DATABASE_URL: sqlite:////workspace/data/viewtube_content.sqlite
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.frontend
+    volumes:
+      - .:/workspace
+    ports:
+      - "3000:3000"
+    environment:
+      VIEWTUBE_BACKEND_MODE: http
+      VIEWTUBE_BACKEND_URL: http://backend:8000
+    depends_on:
+      - backend
+
+volumes:
+  behavior-data:
