@@ -35,4 +35,5 @@ study_media/**/*.mov
 study_media/**/*.webm
 study_media/**/*.csv
 !analysis_code/**/.gitkeep
+!analysis_code/study_media/sequence_manifest.csv
 !study_media/**/.gitkeep
