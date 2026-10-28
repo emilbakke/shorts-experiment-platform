@@ -27,10 +27,16 @@ for (m in names(measures)) {
   f <- lmer(y ~ manosphere_video * gender_clean + idx_c + (1 | participant_id) + (1 | video_id), data = d, control = ctrl)
   ct <- coef(summary(f))
   vc <- as.data.frame(VarCorr(f))
+  # Marginal and conditional R2 (Nakagawa & Schielzeth, 2013): fixed-effect variance and fixed + random variance over total
+  v_fixed <- var(as.vector(model.matrix(f) %*% fixef(f)))
+  v_random <- sum(vc$vcov[vc$grp != "Residual"])
+  v_total <- v_fixed + v_random + sigma(f)^2
   rows[[m]] <- rbind(
     data.frame(measure = m, term = rownames(ct), estimate = ct[, "Estimate"], std_error = ct[, "Std. Error"], p_value = ct[, "Pr(>|t|)"]),
     data.frame(measure = m, term = c("SD participant intercept", "SD video intercept", "SD residual"),
                estimate = c(vc$sdcor[vc$grp == "participant_id"], vc$sdcor[vc$grp == "video_id"], vc$sdcor[vc$grp == "Residual"]), std_error = NA, p_value = NA),
+    data.frame(measure = m, term = c("Marginal R2", "Conditional R2"),
+               estimate = c(v_fixed / v_total, (v_fixed + v_random) / v_total), std_error = NA, p_value = NA),
     data.frame(measure = m, term = c("N served videos", "N participants", "N videos"),
                estimate = c(nrow(d), length(unique(d$participant_id)), length(unique(d$video_id))), std_error = NA, p_value = NA)
   )
